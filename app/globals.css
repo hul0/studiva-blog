@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -124,6 +125,178 @@
     @apply bg-background text-foreground;
     }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
     }
+}
+
+/* ============================
+   Syntax Highlighting (hljs)
+   ============================ */
+
+/* Light theme */
+.hljs {
+  color: #383a42;
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #a0a1a7;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #a626a4;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #986801;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #50a14f;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #e45649;
+  font-weight: bold;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #c18401;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #e45649;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #50a14f;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #c18401;
+}
+
+.hljs-meta {
+  color: #4078f2;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+/* Dark theme */
+.dark .hljs {
+  color: #abb2bf;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #5c6370;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-subst {
+  color: #c678dd;
+}
+
+.dark .hljs-number,
+.dark .hljs-literal,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-tag .hljs-attr {
+  color: #d19a66;
+}
+
+.dark .hljs-string,
+.dark .hljs-doctag {
+  color: #98c379;
+}
+
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-selector-id {
+  color: #e06c75;
+  font-weight: bold;
+}
+
+.dark .hljs-type,
+.dark .hljs-class .hljs-title {
+  color: #e6c07b;
+}
+
+.dark .hljs-tag,
+.dark .hljs-name,
+.dark .hljs-attribute {
+  color: #e06c75;
+}
+
+.dark .hljs-regexp,
+.dark .hljs-link {
+  color: #98c379;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-builtin-name {
+  color: #e6c07b;
+}
+
+.dark .hljs-meta {
+  color: #61afef;
+  font-weight: bold;
+}
+
+.dark .hljs-deletion {
+  background: rgba(224, 108, 117, 0.15);
+}
+
+.dark .hljs-addition {
+  background: rgba(152, 195, 121, 0.15);
+}
+
+/* ============================
+   Blog Content Styles
+   ============================ */
+
+.blog-content {
+  @apply text-base leading-relaxed;
+}
+
+.blog-content > *:first-child {
+  margin-top: 0;
+}
+
+/* Smooth anchor scrolling offset for sticky header */
+.blog-content [id] {
+  scroll-margin-top: 5rem;
+}
+
+/* KaTeX overrides */
+.katex-display {
+  @apply my-6 overflow-x-auto;
+}
+
+.katex {
+  font-size: 1em;
 }

@@ -6,13 +6,43 @@ import Blog from "@/models/Blog"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { BlogContent, extractHeadings } from "@/components/blog/blog-content"
-import { TableOfContents } from "@/components/blog/table-of-contents"
-import { ReadingProgress } from "@/components/blog/reading-progress"
-import { ShareButtons } from "@/components/blog/share-buttons"
 import { RelatedPosts } from "@/components/blog/related-posts"
 import { generateBlogMetadata, generateBlogJsonLd } from "@/lib/seo"
-import { Calendar, Clock, User, ChevronRight } from "lucide-react"
+import {
+  Hash,
+  Calendar,
+  Clock,
+  ChevronRight,
+  BookOpen,
+  Zap,
+  TrendingUp,
+  Settings,
+} from "lucide-react"
 import type { Metadata } from "next"
+import dynamic from "next/dynamic"
+
+// Defer non-critical interactive components
+const TableOfContents = dynamic(() =>
+  import("@/components/blog/table-of-contents").then(
+    (mod) => mod.TableOfContents
+  )
+)
+const ShareButtons = dynamic(() =>
+  import("@/components/blog/share-buttons").then((mod) => mod.ShareButtons)
+)
+const ReadingMoodToggle = dynamic(() =>
+  import("@/components/blog/reading-mood-toggle").then(
+    (mod) => mod.ReadingMoodToggle
+  )
+)
+const BackToTop = dynamic(() =>
+  import("@/components/blog/back-to-top").then((mod) => mod.BackToTop)
+)
+const ReadingProgress = dynamic(() =>
+  import("@/components/blog/reading-progress").then(
+    (mod) => mod.ReadingProgress
+  )
+)
 
 export const revalidate = 60
 export const dynamicParams = true
@@ -34,7 +64,9 @@ async function getBlog(slug: string) {
 async function getRelatedPosts(tags: string[], currentSlug: string) {
   try {
     await connectDB()
-    const posts = await Blog.find({
+
+    // First, try to find posts with matching tags
+    let posts = await Blog.find({
       isPublished: true,
       slug: { $ne: currentSlug },
       tags: { $in: tags },
@@ -43,6 +75,19 @@ async function getRelatedPosts(tags: string[], currentSlug: string) {
       .limit(3)
       .select("-content")
       .lean()
+
+    // Fallback: If no related posts by tags, just get the latest posts
+    if (posts.length === 0) {
+      posts = await Blog.find({
+        isPublished: true,
+        slug: { $ne: currentSlug },
+      })
+        .sort({ publishedAt: -1 })
+        .limit(3)
+        .select("-content")
+        .lean()
+    }
+
     return JSON.parse(JSON.stringify(posts))
   } catch {
     return []
@@ -119,126 +164,183 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <ReadingProgress />
       <Header />
 
-      <main className="min-h-screen bg-background">
+      <main
+        id="main-content"
+        className="min-h-screen bg-background focus:outline-none"
+        tabIndex={-1}
+      >
         {/* Breadcrumbs */}
-        <div className="border-b border-border bg-muted/30">
-          <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 lg:px-8">
-            <nav
-              aria-label="Breadcrumb"
-              className="flex items-center gap-1.5 text-xs text-muted-foreground"
-            >
+        <div className="border-b border-border/5">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
               <Link href="/" className="hover:text-foreground">
                 Home
               </Link>
-              <ChevronRight className="h-3 w-3" />
+              <ChevronRight className="h-3 w-3 opacity-30" />
               <Link href="/blog" className="hover:text-foreground">
                 Blog
               </Link>
-              <ChevronRight className="h-3 w-3" />
-              <span className="truncate text-foreground">{blog.title}</span>
+              <ChevronRight className="h-3 w-3 opacity-30" />
+              <span className="truncate opacity-50">{blog.title}</span>
             </nav>
           </div>
         </div>
 
-        <article className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          {/* Article header */}
-          <header className="mx-auto mb-10 max-w-3xl text-center">
-            {/* Category */}
-            <Link
-              href={`/blog?category=${blog.category}`}
-              className="mb-4 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
-            >
-              {blog.category}
-            </Link>
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            {/* Main Content Column */}
+            <article className="lg:col-span-8">
+              <header className="mb-12">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-foreground/5 px-3 py-1 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                  <Hash className="h-3 w-3" />
+                  {blog.category}
+                </div>
 
-            <h1 className="mb-4 font-heading text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-              {blog.title}
-            </h1>
+                <h1 className="mb-8 font-heading text-4xl leading-tight font-bold tracking-tight text-foreground sm:text-6xl">
+                  {blog.title}
+                </h1>
 
-            <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
-              {blog.excerpt}
-            </p>
+                <div className="flex flex-wrap items-center gap-6 border-y border-border/10 py-6 text-[11px] font-bold tracking-widest text-muted-foreground/60 uppercase">
+                  <span className="flex items-center gap-2">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full border border-border/50 bg-muted text-[10px] text-foreground">
+                      {blog.author.charAt(0)}
+                    </div>
+                    {blog.author}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {formattedDate}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    {blog.readingTime}
+                  </span>
+                </div>
+              </header>
 
-            {/* Meta */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <User className="h-4 w-4" />
-                {blog.author}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                {formattedDate}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                {blog.readingTime}
-              </span>
-            </div>
+              {blog.coverImage && (
+                <div className="mb-16 overflow-hidden rounded-2xl">
+                  <Image
+                    src={blog.coverImage}
+                    alt={blog.title}
+                    width={1000}
+                    height={560}
+                    className="h-auto w-full object-cover"
+                    priority
+                    sizes="(max-width: 1000px) 100vw, 1000px"
+                  />
+                </div>
+              )}
 
-            {/* Tags */}
-            {blog.tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <div className="blog-content">
+                <BlogContent content={blog.content} />
+              </div>
+
+              {/* Topic Tags */}
+              <div className="mt-12 flex flex-wrap gap-2">
                 {blog.tags.map((tag: string) => (
                   <Link
                     key={tag}
                     href={`/blog?tag=${tag}`}
-                    className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="rounded-full border border-border/50 bg-muted/50 px-4 py-1.5 text-[10px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:bg-foreground hover:text-background"
                   >
                     #{tag}
                   </Link>
                 ))}
               </div>
-            )}
-          </header>
 
-          {/* Cover image */}
-          {blog.coverImage && (
-            <div className="mx-auto mb-10 max-w-4xl overflow-hidden rounded-xl">
-              <Image
-                src={blog.coverImage}
-                alt={blog.title}
-                width={1200}
-                height={630}
-                className="h-auto w-full object-cover"
-                priority
-                sizes="(max-width: 768px) 100vw, 900px"
-              />
-            </div>
-          )}
-
-          {/* Content + TOC layout */}
-          <div className="mx-auto max-w-6xl lg:flex lg:gap-10">
-            {/* Main content */}
-            <div className="min-w-0 max-w-3xl flex-1">
-              <BlogContent content={blog.content} />
-
-              {/* Share buttons */}
-              <div className="mt-10 flex items-center justify-between border-t border-border pt-6">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Share this article
-                </span>
-                <ShareButtons url={blogUrl} title={blog.title} />
-              </div>
-            </div>
-
-            {/* Sidebar / TOC */}
-            {headings.length > 0 && (
-              <aside className="hidden w-64 shrink-0 lg:block">
-                <div className="sticky top-20">
-                  <TableOfContents headings={headings} />
+              {relatedPosts.length > 0 && (
+                <div className="mt-20 border-t border-border/10 pt-16">
+                  <h2 className="mb-12 font-heading text-3xl font-bold tracking-tight">
+                    Continue Reading
+                  </h2>
+                  <RelatedPosts posts={relatedPosts} />
                 </div>
-              </aside>
-            )}
-          </div>
+              )}
+            </article>
 
-          {/* Related posts */}
-          <div className="mx-auto max-w-3xl">
-            <RelatedPosts posts={relatedPosts} />
+            {/* Right Sidebar - Consistent with Homepage */}
+            <aside className="hidden lg:col-span-4 lg:block">
+              <div className="sticky top-24 space-y-12">
+                {headings.length > 0 && (
+                  <div>
+                    <p className="mb-8 text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+                      On this page
+                    </p>
+                    <TableOfContents headings={headings} />
+                  </div>
+                )}
+
+                <div className="border-t border-border/10 pt-8">
+                  <p className="mb-8 text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+                    Share Article
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <ShareButtons url={blogUrl} title={blog.title} />
+                    <ReadingMoodToggle />
+                  </div>
+                </div>
+
+                {/* About Studiva Sidebar Block */}
+                <div className="rounded-2xl border border-border/50 bg-muted/50 p-8">
+                  <div className="mb-4 flex h-10 items-center">
+                    <Image
+                      src="/logo.png"
+                      alt="Studiva Logo"
+                      width={160}
+                      height={52}
+                      className="h-10 w-auto object-contain dark:invert"
+                    />
+                  </div>
+                  <h3 className="mb-4 font-heading text-xl font-bold">
+                    About Studiva
+                  </h3>
+                  <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+                    Insights for the modern student. From academic excellence to
+                    productivity hacks, we build the tools you need to succeed.
+                  </p>
+                  <Link
+                    href="/blog"
+                    className="text-xs font-bold tracking-widest text-foreground uppercase hover:underline"
+                  >
+                    Explore our guides →
+                  </Link>
+                </div>
+
+                {/* Quick Links / Categories */}
+                <div className="border-t border-border/10 pt-8">
+                  <p className="mb-8 text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+                    Explore Topics
+                  </p>
+                  <nav className="space-y-4">
+                    {[
+                      { name: "Academic Success", icon: BookOpen },
+                      { name: "Productivity", icon: Zap },
+                      { name: "Student Life", icon: TrendingUp },
+                    ].map((cat) => (
+                      <Link
+                        key={cat.name}
+                        href={`/blog?category=${cat.name}`}
+                        className="group flex items-center gap-3"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-foreground group-hover:text-background">
+                          <cat.icon className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-bold text-foreground/70 transition-colors group-hover:text-foreground">
+                          {cat.name}
+                        </span>
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </aside>
           </div>
-        </article>
+        </div>
       </main>
 
       <Footer />
+      <BackToTop />
     </>
   )
 }

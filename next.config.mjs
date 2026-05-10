@@ -12,6 +12,12 @@ const nextConfig = {
   trailingSlash: false,
   // Powered by header removed for security
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "rehype-highlight", "lucide-react"],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
 }
 
 export default nextConfig

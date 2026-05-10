@@ -6,18 +6,21 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Studiva Blog"
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Insights for Students`,
+    default: `${SITE_NAME} — Student Productivity & Academic Success`,
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Studiva Blog — Your go-to resource for student tips, academic insights, productivity hacks, and everything education.",
+    "Studiva Blog: The definitive guide for student productivity, academic excellence, and modern education strategy. Research-backed study tips and learning systems.",
   keywords: [
     "studiva",
     "student blog",
-    "education",
-    "productivity",
-    "academic tips",
-    "study guides",
+    "productivity for students",
+    "academic excellence",
+    "study techniques",
+    "learning systems",
+    "university tips",
+    "high-achieving students",
+    "academic strategy",
   ],
   authors: [{ name: "Studiva Team" }],
   creator: "Studiva",
@@ -27,9 +30,9 @@ export const defaultMetadata: Metadata = {
     locale: "en_IN",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: SITE_NAME,
+    title: `${SITE_NAME} — Insights for Modern Students`,
     description:
-      "Your go-to resource for student tips, academic insights, and productivity hacks.",
+      "Research-backed strategies for student productivity, academic excellence, and success. Built for the modern lifelong learner.",
     images: [
       {
         url: `${SITE_URL}/og-default.png`,
@@ -43,7 +46,7 @@ export const defaultMetadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "Your go-to resource for student tips, academic insights, and productivity hacks.",
+      "Research-backed strategies for student productivity, academic excellence, and success.",
     images: [`${SITE_URL}/og-default.png`],
   },
   robots: {
@@ -62,6 +65,15 @@ export const defaultMetadata: Metadata = {
     types: {
       "application/rss+xml": `${SITE_URL}/feed.xml`,
     },
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: SITE_NAME,
+  },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
 }
 
@@ -127,32 +139,61 @@ export function generateBlogJsonLd(blog: BlogPostSEO) {
       {
         "@type": "BlogPosting",
         "@id": `${url}#article`,
+        isPartOf: {
+          "@id": `${url}#webpage`,
+        },
+        author: {
+          "@id": `${SITE_URL}/#organization`,
+        },
         headline: blog.title,
-        description: blog.excerpt,
-        image: blog.coverImage || `${SITE_URL}/og-default.png`,
         datePublished: blog.publishedAt,
         dateModified: blog.updatedAt,
-        author: {
-          "@type": "Person",
-          name: blog.author,
+        mainEntityOfPage: {
+          "@id": `${url}#webpage`,
         },
         publisher: {
-          "@type": "Organization",
-          name: SITE_NAME,
-          logo: {
-            "@type": "ImageObject",
-            url: `${SITE_URL}/logo.png`,
-          },
+          "@id": `${SITE_URL}/#organization`,
         },
-        mainEntityOfPage: {
-          "@type": "WebPage",
-          "@id": url,
+        image: {
+          "@id": `${url}#primaryimage`,
         },
+        description: blog.excerpt,
+        articleSection: [blog.category],
         keywords: blog.tags.join(", "),
-        articleSection: blog.category,
+        inLanguage: "en-IN",
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: blog.title,
+        isPartOf: {
+          "@id": `${SITE_URL}/#website`,
+        },
+        primaryImageOfPage: {
+          "@id": `${url}#primaryimage`,
+        },
+        datePublished: blog.publishedAt,
+        dateModified: blog.updatedAt,
+        description: blog.excerpt,
+        breadcrumb: {
+          "@id": `${url}#breadcrumb`,
+        },
+        inLanguage: "en-IN",
+      },
+      {
+        "@type": "ImageObject",
+        "@id": `${url}#primaryimage`,
+        inLanguage: "en-IN",
+        url: blog.coverImage || `${SITE_URL}/og-default.png`,
+        contentUrl: blog.coverImage || `${SITE_URL}/og-default.png`,
+        width: 1200,
+        height: 630,
+        caption: blog.title,
       },
       {
         "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
         itemListElement: [
           {
             "@type": "ListItem",
@@ -170,9 +211,29 @@ export function generateBlogJsonLd(blog: BlogPostSEO) {
             "@type": "ListItem",
             position: 3,
             name: blog.title,
-            item: url,
           },
         ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "Studiva",
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_URL}/logo.png`,
+          width: 512,
+          height: 512,
+        },
       },
     ],
   }
@@ -181,18 +242,81 @@ export function generateBlogJsonLd(blog: BlogPostSEO) {
 export function generateWebsiteJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE_NAME,
-    url: SITE_URL,
-    description:
-      "Your go-to resource for student tips, academic insights, and productivity hacks.",
-    publisher: {
-      "@type": "Organization",
-      name: "Studiva",
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        description:
+          "The definitive guide for student productivity, academic excellence, and modern education strategy.",
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+        potentialAction: [
+          {
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${SITE_URL}/blog?search={search_term_string}`,
+            },
+            "query-input": "required name=search_term_string",
+          },
+        ],
+        inLanguage: "en-IN",
       },
-    },
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "Studiva",
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          "@id": `${SITE_URL}/#logo`,
+          url: `${SITE_URL}/logo.png`,
+          contentUrl: `${SITE_URL}/logo.png`,
+          width: 512,
+          height: 512,
+          caption: "Studiva",
+        },
+        image: {
+          "@id": `${SITE_URL}/#logo`,
+        },
+        sameAs: [
+          "https://twitter.com/studiva",
+          "https://instagram.com/studiva",
+          "https://linkedin.com/company/studiva",
+        ],
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${SITE_URL}/#webpage`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        about: { "@id": `${SITE_URL}/#organization` },
+        description:
+          "Studiva Blog — Your go-to resource for student tips, academic insights, productivity hacks, and everything education.",
+        breadcrumb: { "@id": `${SITE_URL}/#breadcrumb` },
+        inLanguage: "en-IN",
+        potentialAction: [
+          {
+            "@type": "ReadAction",
+            target: [SITE_URL],
+          },
+        ],
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${SITE_URL}/#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+          },
+        ],
+      },
+    ],
   }
 }

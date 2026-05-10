@@ -48,7 +48,13 @@ export default function RootLayout({
         playfairDisplayHeading.variable
       )}
     >
-      <body>
+      <body className="relative min-h-screen">
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary font-bold text-sm"
+        >
+          Skip to content
+        </a>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

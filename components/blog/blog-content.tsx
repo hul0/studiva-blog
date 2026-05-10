@@ -153,7 +153,7 @@ const mdxComponents: MDXComponents = {
         className={cn(
           "my-6 text-lg leading-relaxed text-foreground/80",
           isKeywords &&
-            "pointer-events-none m-0 p-0 text-[1px] leading-none opacity-[0.02] select-none"
+          "pointer-events-none m-0 p-0 text-[1px] leading-none opacity-[0.02] select-none"
         )}
       >
         {props.children}

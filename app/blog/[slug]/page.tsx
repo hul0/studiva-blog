@@ -196,7 +196,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   {blog.category}
                 </div>
 
-                <h1 className="mb-8 font-heading text-4xl leading-tight font-bold tracking-tight text-foreground sm:text-6xl">
+                <h1 className="mb-8 font-heading text-3xl leading-tight font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                   {blog.title}
                 </h1>
 
@@ -238,7 +238,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
               {/* Topic Tags */}
               <div className="mt-12 flex flex-wrap gap-2">
-                {blog.tags.map((tag: string) => (
+                {blog.tags.slice(0, 10).map((tag: string) => (
                   <Link
                     key={tag}
                     href={`/blog?tag=${tag}`}
@@ -260,7 +260,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </article>
 
             {/* Right Sidebar - Consistent with Homepage */}
-            <aside className="hidden lg:col-span-4 lg:block">
+            <aside className="mt-16 lg:col-span-4 lg:mt-0">
               <div className="sticky top-24 space-y-12">
                 {headings.length > 0 && (
                   <div>
@@ -285,11 +285,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="rounded-2xl border border-border/50 bg-muted/50 p-8">
                   <div className="mb-4 flex h-10 items-center">
                     <Image
-                      src="/logo.png"
+                      src="/studiva-logo-pink.svg"
                       alt="Studiva Logo"
                       width={160}
                       height={52}
-                      className="h-10 w-auto object-contain dark:invert"
+                      className="h-10 w-auto object-contain rounded-[10%]"
                     />
                   </div>
                   <h3 className="mb-4 font-heading text-xl font-bold">

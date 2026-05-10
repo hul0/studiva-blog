@@ -16,7 +16,7 @@ function MobileMenu() {
         <X className="hidden h-5 w-5 peer-checked:block" />
       </label>
       {/* Mobile dropdown */}
-      <div className="fixed inset-x-0 top-20 z-40 hidden border-b border-border/10 bg-background/95 p-6 backdrop-blur-xl animate-in slide-in-from-top-4 peer-checked:block md:hidden">
+      <div className="fixed inset-x-0 top-16 z-40 hidden border-b border-border/10 bg-background/95 p-6 backdrop-blur-xl animate-in slide-in-from-top-4 peer-checked:block md:hidden">
         <nav className="flex flex-col gap-4">
           <Link
             href="/"
@@ -46,11 +46,11 @@ export function Header() {
         <div className="flex items-center gap-8">
           <Link href="/" className="group flex items-center shrink-0">
             <Image
-              src="/logo.png"
+              src="/studiva-logo-pink.svg"
               alt="Studiva Logo"
               width={200}
               height={50}
-              className="h-10 w-auto object-contain transition-all duration-500 group-hover:scale-105 dark:invert"
+              className="h-10 w-auto object-contain transition-all duration-500 group-hover:scale-105 rounded-[10%]"
               priority
             />
           </Link>

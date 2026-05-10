@@ -65,7 +65,7 @@ export default async function HomePage() {
                   <Sparkles className="h-3 w-3" />
                   Studiva™ Digital Publication
                 </div>
-                <h1 className="mb-8 font-heading text-6xl font-bold tracking-tight text-foreground md:text-8xl lg:text-[6rem] leading-[1.05]">
+                <h1 className="mb-8 font-heading text-5xl font-bold tracking-tight text-foreground sm:text-7xl md:text-8xl lg:text-[6rem] leading-[1.05]">
                   The <span className="font-medium text-muted-foreground/80 italic">Future</span> of <br />
                   Academic <span className="text-muted-foreground/60">Success.</span>
                 </h1>
@@ -204,11 +204,11 @@ export default async function HomePage() {
               <div className="rounded-xl border border-border/50 bg-muted/50 p-6">
                 <div className="mb-4 flex h-8 items-center">
                   <Image
-                    src="/logo.png"
+                    src="/studiva-logo-pink.svg"
                     alt="Studiva Logo"
                     width={140}
                     height={44}
-                    className="h-8 w-auto object-contain dark:invert"
+                    className="h-8 w-auto object-contain rounded-[10%]"
                   />
                 </div>
                 <h3 className="mb-3 font-heading text-lg font-bold">

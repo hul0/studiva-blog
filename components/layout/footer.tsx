@@ -13,11 +13,11 @@ export function Footer() {
           <div className="md:col-span-2 space-y-4">
             <Link href="/" className="group flex items-center">
               <Image
-                src="/logo.png"
+                src="/studiva-logo-pink.svg"
                 alt="Studiva Logo"
                 width={150}
                 height={40}
-                className="h-10 w-auto object-contain transition-transform group-hover:scale-105 dark:invert"
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-105 rounded-[10%]"
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">

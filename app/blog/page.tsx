@@ -109,54 +109,6 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
           </div>
         </div>
 
-        {/* Editorial Mission / Intro */}
-        <div className="border-b border-border/5 bg-background py-16">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-12 md:grid-cols-2 items-center">
-              <div>
-                <h2 className="font-heading text-2xl font-bold mb-4 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-muted-foreground" />
-                  Our Editorial Mission
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Studiva is more than just a blog; it&apos;s a digital compass for students navigating the complexities of modern education. From deep dives into cognitive science-backed study techniques to practical advice on managing student life, our editorial team works to bring you the most reliable insights.
-                </p>
-                <div className="mt-8 flex gap-8">
-                  <div>
-                    <p className="text-2xl font-bold">100%</p>
-                    <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Research Based</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">Weekly</p>
-                    <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Fresh Content</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{total}+</p>
-                    <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Guides Published</p>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-2xl border border-border/50 bg-muted/30 p-8">
-                <h3 className="font-heading text-lg font-bold mb-3">Explore by Theme</h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Our library is organized into three core pillars of student success. Select a theme to filter our archives.
-                </p>
-                <div className="space-y-3">
-                  {["Academic Success", "Productivity", "Student Life"].map((cat) => (
-                    <Link
-                      key={cat}
-                      href={`/blog?category=${cat}`}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-background hover:bg-muted transition-colors group"
-                    >
-                      <span className="text-sm font-medium">{cat}</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Search & Filters */}
@@ -275,6 +227,49 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
               )}
             </nav>
           )}
+        </div>
+
+        {/* Editorial Mission / Intro */}
+        <div className="border-t border-border/5 bg-muted/5 py-24">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-12 md:grid-cols-2 items-center">
+              <div>
+                <h2 className="font-heading text-3xl font-bold mb-6 flex items-center gap-3">
+                  <BookOpen className="h-6 w-6 text-muted-foreground" />
+                  Our Editorial Mission
+                </h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Studiva is more than just a blog; it&apos;s a digital compass for students navigating the complexities of modern education. From deep dives into cognitive science-backed study techniques to practical advice on managing student life, our editorial team works to bring you the most reliable insights.
+                </p>
+                <div className="mt-10 grid grid-cols-2 gap-8 sm:flex sm:gap-10">
+                  <div>
+                    <p className="text-2xl font-bold sm:text-3xl">100%</p>
+                    <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">Research Based</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold sm:text-3xl">Weekly</p>
+                    <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">Fresh Content</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold sm:text-3xl">{total}+</p>
+                    <p className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">Guides Published</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-border/50 bg-background p-10 shadow-sm">
+                <h3 className="font-heading text-xl font-bold mb-4">The Studiva Standard</h3>
+                <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+                  Every article published in the Studiva Journal undergoes a rigorous review process. We ensure that every piece of advice is actionable, every study tip is evidence-based, and every guide is tailored for the modern student experience.
+                </p>
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-foreground uppercase hover:gap-3 transition-all"
+                >
+                  Explore the archives <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />

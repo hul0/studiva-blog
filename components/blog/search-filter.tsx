@@ -31,13 +31,21 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
     [router, searchParams]
   )
 
-  // Debounced search
+  // Debounced search update
   useEffect(() => {
+    // Only update if search value is different from current URL param
+    const currentSearch = searchParams.get("search") || ""
+    if (search === currentSearch) return
+
     const timer = setTimeout(() => {
-      updateParams("search", search)
+      // Re-verify before pushing to avoid race conditions
+      const latestSearch = new URLSearchParams(window.location.search).get("search") || ""
+      if (search !== latestSearch) {
+        updateParams("search", search)
+      }
     }, 400)
     return () => clearTimeout(timer)
-  }, [search, updateParams])
+  }, [search, updateParams, searchParams])
 
   // Focus search on ?focus=search
   useEffect(() => {
@@ -105,25 +113,27 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
 
         {/* Tags */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="mr-1 text-xs font-medium text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+            <span className="mr-1 text-xs font-medium text-muted-foreground whitespace-nowrap">
               Tags:
             </span>
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() =>
-                  updateParams("tag", activeTag === tag ? "" : tag)
-                }
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTag === tag
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                }`}
-              >
-                #{tag}
-              </button>
-            ))}
+            <div className="flex flex-wrap gap-1.5">
+              {tags.slice(0, 10).map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() =>
+                    updateParams("tag", activeTag === tag ? "" : tag)
+                  }
+                  className={`rounded-full px-3 py-1 text-[10px] font-medium transition-colors ${
+                    activeTag === tag
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

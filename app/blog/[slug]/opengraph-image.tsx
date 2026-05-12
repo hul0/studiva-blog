@@ -1,8 +1,9 @@
+export const runtime = 'nodejs'
+
 import { ImageResponse } from "next/og"
 import { connectDB } from "@/lib/db"
 import Blog from "@/models/Blog"
 
-export const runtime = "edge"
 export const alt = "Studiva Blog"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
@@ -92,7 +93,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 {blog.category}
               </span>
             </div>
-            
+
             <h1 style={{
               fontSize: 72,
               fontWeight: 'bold',

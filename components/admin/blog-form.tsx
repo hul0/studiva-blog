@@ -4,8 +4,9 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MarkdownEditor } from "@/components/admin/markdown-editor"
 import { SEOAnalyzer } from "@/components/admin/seo-analyzer"
-import { Save, Eye, Loader2, ArrowLeft, Trash2 } from "lucide-react"
+import { Save, Eye, Loader2, ArrowLeft, Trash2, Info } from "lucide-react"
 import Link from "next/link"
+import React from "react"
 
 interface BlogFormData {
   title: string
@@ -200,7 +201,7 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
             <Info className="h-4 w-4" />
             <span>You have an unsaved draft from a previous session.</span>
           </div>
-          <button 
+          <button
             onClick={clearDraft}
             className="flex items-center gap-1 font-bold text-yellow-900 hover:underline dark:text-yellow-100"
           >
@@ -346,7 +347,7 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
             />
           </div>
 
-          <SEOAnalyzer 
+          <SEOAnalyzer
             title={form.title}
             excerpt={form.excerpt}
             content={form.content}

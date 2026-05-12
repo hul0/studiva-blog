@@ -13,6 +13,7 @@ export interface IBlog extends Document {
   publishedAt: Date
   updatedAt: Date
   readingTime: string
+  views: number
   isPublished: boolean
 }
 
@@ -27,6 +28,7 @@ const BlogSchema = new Schema<IBlog>(
     category: { type: String, default: "General", trim: true },
     content: { type: String, required: true },
     readingTime: { type: String, default: "1 min read" },
+    views: { type: Number, default: 0 },
     isPublished: { type: Boolean, default: false, index: true },
     publishedAt: { type: Date, default: Date.now },
   },

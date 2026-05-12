@@ -218,23 +218,6 @@
 
 /* SEO Optimization Block */
 #target-keywords,
-#target-keywords ~ p,
-#target-keywords ~ ul,
-#target-keywords ~ li,
-#target-keywords + hr,
-#target-keywords + p + hr,
-#target-keywords + p + p + hr,
-.seo-metadata {
-  height: 0 !important;
-  width: 0 !important;
-  overflow: hidden !important;
-  opacity: 0.001 !important;
-  pointer-events: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: absolute !important;
-}
-
 .blog-content > *:first-child {
   margin-top: 0;
 }
@@ -251,4 +234,8 @@
 
 .katex {
   font-size: 1em;
+}
+
+@view-transition {
+  navigation: auto;
 }

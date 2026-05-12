@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, X } from "lucide-react"
+import { Search, X, Filter, Hash, Tag } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 
 interface SearchFilterProps {
@@ -33,12 +33,10 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
 
   // Debounced search update
   useEffect(() => {
-    // Only update if search value is different from current URL param
     const currentSearch = searchParams.get("search") || ""
     if (search === currentSearch) return
 
     const timer = setTimeout(() => {
-      // Re-verify before pushing to avoid race conditions
       const latestSearch = new URLSearchParams(window.location.search).get("search") || ""
       if (search !== latestSearch) {
         updateParams("search", search)
@@ -47,7 +45,6 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
     return () => clearTimeout(timer)
   }, [search, updateParams, searchParams])
 
-  // Focus search on ?focus=search
   useEffect(() => {
     if (searchParams.get("focus") === "search") {
       document.getElementById("blog-search")?.focus()
@@ -62,75 +59,92 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
   const hasFilters = search || activeTag || activeCategory
 
   return (
-    <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          id="blog-search"
-          type="text"
-          placeholder="Search articles..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+    <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
+      {/* Premium Search Bar */}
+      <div className="relative group max-w-2xl mx-auto">
+        <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-focus-within:opacity-50" />
+        <div className="relative flex items-center bg-background border border-border/50 rounded-2xl shadow-sm transition-all group-focus-within:border-primary/50 group-focus-within:ring-4 group-focus-within:ring-primary/5">
+          <Search className="ml-5 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+          <input
+            id="blog-search"
+            type="text"
+            placeholder="Search the journal archive..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-14 w-full bg-transparent px-4 text-base text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="mr-4 p-1 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+              aria-label="Clear search"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+          <div className="mr-5 hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 border border-border/50 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            <span className="opacity-60">⌘</span>K
+          </div>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4">
+      {/* Filter Chips */}
+      <div className="flex flex-col gap-6">
         {/* Categories */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="mr-1 text-xs font-medium text-muted-foreground">
-              Category:
-            </span>
-            {categories.map((cat) => (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 px-1">
+              <Filter className="h-3 w-3" />
+              Browse by Category
+            </div>
+            <div className="flex flex-wrap gap-2">
               <button
-                key={cat}
-                onClick={() =>
-                  updateParams("category", activeCategory === cat ? "" : cat)
-                }
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  activeCategory === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                onClick={() => updateParams("category", "")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 border ${
+                  !activeCategory
+                    ? "bg-foreground text-background border-foreground shadow-lg shadow-foreground/10"
+                    : "bg-background text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
                 }`}
               >
-                {cat}
+                All Articles
               </button>
-            ))}
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => updateParams("category", activeCategory === cat ? "" : cat)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 border ${
+                    activeCategory === cat
+                      ? "bg-foreground text-background border-foreground shadow-lg shadow-foreground/10"
+                      : "bg-background text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Tags */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-            <span className="mr-1 text-xs font-medium text-muted-foreground whitespace-nowrap">
-              Tags:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {tags.slice(0, 10).map((tag) => (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 px-1">
+              <Hash className="h-3 w-3" />
+              Popular Tags
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.slice(0, 15).map((tag) => (
                 <button
                   key={tag}
-                  onClick={() =>
-                    updateParams("tag", activeTag === tag ? "" : tag)
-                  }
-                  className={`rounded-full px-3 py-1 text-[10px] font-medium transition-colors ${
+                  onClick={() => updateParams("tag", activeTag === tag ? "" : tag)}
+                  className={`group flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all active:scale-95 border ${
                     activeTag === tag
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "bg-background text-muted-foreground border-border/50 hover:border-border hover:text-foreground"
                   }`}
                 >
-                  #{tag}
+                  <Tag className={`h-3 w-3 transition-transform ${activeTag === tag ? "scale-110" : "opacity-40 group-hover:opacity-100"}`} />
+                  {tag}
                 </button>
               ))}
             </div>
@@ -138,14 +152,17 @@ export function SearchFilter({ tags, categories }: SearchFilterProps) {
         )}
       </div>
 
-      {/* Clear */}
+      {/* Clear State */}
       {hasFilters && (
-        <button
-          onClick={clearFilters}
-          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          Clear all filters
-        </button>
+        <div className="flex items-center justify-center pt-4">
+          <button
+            onClick={clearFilters}
+            className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-muted/50 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted hover:text-foreground transition-all border border-border/20"
+          >
+            <X className="h-3 w-3" />
+            Reset all filters
+          </button>
+        </div>
       )}
     </div>
   )

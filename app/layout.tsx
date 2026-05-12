@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { defaultMetadata } from "@/lib/seo"
 import type { Metadata, Viewport } from "next"
+import { CommandPalette } from "@/components/blog/command-palette"
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ["latin"],
@@ -55,7 +56,10 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <CommandPalette />
+        </ThemeProvider>
       </body>
     </html>
   )

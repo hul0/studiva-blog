@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MarkdownEditor } from "@/components/admin/markdown-editor"
-import { Save, Eye, Loader2, ArrowLeft } from "lucide-react"
+import { SEOAnalyzer } from "@/components/admin/seo-analyzer"
+import { Save, Eye, Loader2, ArrowLeft, Trash2 } from "lucide-react"
 import Link from "next/link"
 
 interface BlogFormData {
@@ -40,10 +41,53 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
     isPublished: initialData?.isPublished || false,
   })
 
+  const [hasDraft, setHasDraft] = useState(false)
+
+  // Autosave to localStorage
+  React.useEffect(() => {
+    if (isEdit) return // Don't autosave when editing existing posts to avoid overwriting
+
+    const savedDraft = localStorage.getItem("studiva-blog-draft")
+    if (savedDraft && !initialData) {
+      setHasDraft(true)
+      try {
+        const draft = JSON.parse(savedDraft)
+        setForm(draft)
+        setSuccess("Draft loaded from local storage")
+      } catch (e) {
+        console.error("Failed to parse draft", e)
+      }
+    }
+  }, [isEdit, initialData])
+
+  React.useEffect(() => {
+    if (isEdit) return
+    const timeout = setTimeout(() => {
+      localStorage.setItem("studiva-blog-draft", JSON.stringify(form))
+    }, 1000)
+    return () => clearTimeout(timeout)
+  }, [form, isEdit])
+
   function updateField(field: keyof BlogFormData, value: string | boolean) {
     setForm((prev) => ({ ...prev, [field]: value }))
     setError("")
     setSuccess("")
+  }
+
+  function clearDraft() {
+    localStorage.removeItem("studiva-blog-draft")
+    setHasDraft(false)
+    setForm({
+      title: "",
+      excerpt: "",
+      coverImage: "",
+      author: "Studiva Team",
+      tags: "",
+      category: "General",
+      content: "",
+      isPublished: false,
+    })
+    setSuccess("Draft cleared")
   }
 
   async function handleSubmit(publish: boolean) {
@@ -91,6 +135,10 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
           ? "Blog published successfully!"
           : "Blog saved as draft!"
       )
+
+      if (!isEdit) {
+        localStorage.removeItem("studiva-blog-draft")
+      }
 
       setTimeout(() => {
         router.push("/admin/blogs")
@@ -145,6 +193,22 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
           </button>
         </div>
       </div>
+
+      {!isEdit && hasDraft && (
+        <div className="flex items-center justify-between rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800 dark:border-yellow-900/50 dark:bg-yellow-950/30 dark:text-yellow-200">
+          <div className="flex items-center gap-2">
+            <Info className="h-4 w-4" />
+            <span>You have an unsaved draft from a previous session.</span>
+          </div>
+          <button 
+            onClick={clearDraft}
+            className="flex items-center gap-1 font-bold text-yellow-900 hover:underline dark:text-yellow-100"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear Draft
+          </button>
+        </div>
+      )}
 
       {/* Status messages */}
       {error && (
@@ -281,6 +345,12 @@ export function BlogForm({ initialData, slug, isEdit }: BlogFormProps) {
               placeholder="study-tips, productivity, education"
             />
           </div>
+
+          <SEOAnalyzer 
+            title={form.title}
+            excerpt={form.excerpt}
+            content={form.content}
+          />
 
           {/* Publish toggle */}
           <div className="flex items-center gap-3 rounded-lg border border-border p-3">

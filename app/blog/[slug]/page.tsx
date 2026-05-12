@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { BlogContent, extractHeadings } from "@/components/blog/blog-content"
 import { RelatedPosts } from "@/components/blog/related-posts"
+import { ViewTracker } from "@/components/blog/view-tracker"
 import { generateBlogMetadata, generateBlogJsonLd } from "@/lib/seo"
 import {
   Hash,
@@ -17,6 +18,7 @@ import {
   Zap,
   TrendingUp,
   Settings,
+  Eye,
 } from "lucide-react"
 import type { Metadata } from "next"
 import dynamic from "next/dynamic"
@@ -163,6 +165,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       />
       <ReadingProgress />
       <Header />
+      <ViewTracker slug={blog.slug} />
 
       <main
         id="main-content"
@@ -214,6 +217,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <span className="flex items-center gap-2">
                     <Clock className="h-3.5 w-3.5" />
                     {blog.readingTime}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Eye className="h-3.5 w-3.5" />
+                    {blog.views || 0} views
                   </span>
                 </div>
               </header>

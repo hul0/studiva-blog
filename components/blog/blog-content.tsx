@@ -102,20 +102,13 @@ const mdxComponents: MDXComponents = {
       {...props}
     />
   ),
-  h2: (props: any) => {
-    const text = getTextContent(props.children)
-    const isSEO = text.toLowerCase().includes("target keywords")
-    return (
-      <h2
-        id={slugify(text)}
-        className={cn(
-          "mt-10 mb-5 font-heading text-2xl font-bold tracking-tight text-foreground",
-          isSEO && "sr-only m-0 h-0 w-0 overflow-hidden p-0"
-        )}
-        {...props}
-      />
-    )
-  },
+  h2: (props: any) => (
+    <h2
+      id={slugify(getTextContent(props.children))}
+      className="mt-10 mb-5 font-heading text-2xl font-bold tracking-tight text-foreground"
+      {...props}
+    />
+  ),
   h3: (props: any) => (
     <h3
       id={slugify(getTextContent(props.children))}
@@ -144,22 +137,11 @@ const mdxComponents: MDXComponents = {
       {...props}
     />
   ),
-  p: (props: any) => {
-    const text = getTextContent(props.children)
-    // Heuristic: If a paragraph has more than 4 commas and no periods, it's likely a keyword list
-    const isKeywords = text.split(",").length > 4 && !text.includes(".")
-    return (
-      <p
-        className={cn(
-          "my-6 text-lg leading-relaxed text-foreground/80",
-          isKeywords &&
-          "pointer-events-none m-0 p-0 text-[1px] leading-none opacity-[0.02] select-none"
-        )}
-      >
-        {props.children}
-      </p>
-    )
-  },
+  p: (props: any) => (
+    <p className="my-6 text-lg leading-relaxed text-foreground/80">
+      {props.children}
+    </p>
+  ),
   ul: (props) => (
     <ul className="my-6 list-disc space-y-2 pl-6 text-lg text-foreground/80">
       {props.children}
@@ -180,16 +162,11 @@ interface BlogContentProps {
 }
 
 export function BlogContent({ content }: BlogContentProps) {
-  // Pre-process content to wrap "Target Keywords" section and surrounding HRs in a hidden div
-  const processedContent = content.replace(
-    /(?:\n---\n)?\s*(#{2,6})\s+Target Keywords[\s\S]*?(?=\n#{2,6}\s+|$)(?:\n---\n)?/gi,
-    (match) => `\n<div className="seo-metadata">\n${match}\n</div>\n`
-  )
 
   return (
     <div className="blog-content">
       <MDXRemote
-        source={processedContent}
+        source={content}
         options={{
           mdxOptions: {
             remarkPlugins: [remarkGfm, remarkMath],

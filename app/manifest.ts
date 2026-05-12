@@ -1,19 +1,19 @@
-import type { MetadataRoute } from "next"
-
+import { MetadataRoute } from 'next'
+ 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Studiva Blog",
-    short_name: "Studiva",
-    description: "Insights for the modern student. Productivity hacks and academic guides.",
-    start_url: "/",
-    display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#000000",
+    name: 'Studiva Blog',
+    short_name: 'Studiva',
+    description: 'Master Your Academic Journey with Studiva',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#ec4899',
     icons: [
       {
-        src: "/favicon.ico",
-        sizes: "any",
-        type: "image/x-icon",
+        src: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
       },
     ],
   }

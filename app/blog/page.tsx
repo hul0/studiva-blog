@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { BlogCard } from "@/components/blog/blog-card"
-import { ChevronLeft, ChevronRight, BookOpen, Sparkles } from "lucide-react"
+import { ChevronLeft, ChevronRight, BookOpen, Sparkles, Eye } from "lucide-react"
 import type { Metadata } from "next"
 import dynamic from "next/dynamic"
 
@@ -31,55 +31,66 @@ interface BlogListPageProps {
   }>
 }
 
-async function getBlogData(searchParams: {
+import { unstable_cache } from "next/cache"
+import { IBlog, BlogListData } from "@/types/blog"
+
+const getBlogData = async (searchParams: {
   page?: string
   search?: string
   tag?: string
   category?: string
-}) {
-  try {
-    await connectDB()
+}): Promise<BlogListData> => {
+  const cacheKey = JSON.stringify(searchParams)
 
-    const page = parseInt(searchParams.page || "1")
-    const limit = 12
-    const skip = (page - 1) * limit
+  return unstable_cache(
+    async (): Promise<BlogListData> => {
+      try {
+        await connectDB()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const query: any = { isPublished: true }
+        const page = parseInt(searchParams.page || "1")
+        const limit = 12
+        const skip = (page - 1) * limit
 
-    if (searchParams.search) {
-      query.$text = { $search: searchParams.search }
-    }
-    if (searchParams.tag) {
-      query.tags = { $in: [searchParams.tag.toLowerCase()] }
-    }
-    if (searchParams.category) {
-      query.category = searchParams.category
-    }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const query: Record<string, any> = { isPublished: true }
 
-    const [blogs, total, allTags, allCategories] = await Promise.all([
-      Blog.find(query)
-        .sort({ publishedAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("-content")
-        .lean(),
-      Blog.countDocuments(query),
-      Blog.distinct("tags", { isPublished: true }),
-      Blog.distinct("category", { isPublished: true }),
-    ])
+        if (searchParams.search) {
+          query.$text = { $search: searchParams.search }
+        }
+        if (searchParams.tag) {
+          query.tags = { $in: [searchParams.tag.toLowerCase()] }
+        }
+        if (searchParams.category) {
+          query.category = searchParams.category
+        }
 
-    return {
-      blogs: JSON.parse(JSON.stringify(blogs)),
-      total,
-      totalPages: Math.ceil(total / limit),
-      page,
-      tags: allTags.sort(),
-      categories: allCategories.sort(),
-    }
-  } catch {
-    return { blogs: [], total: 0, totalPages: 0, page: 1, tags: [], categories: [] }
-  }
+        const [blogs, total, allTags, allCategories] = await Promise.all([
+          Blog.find(query)
+            .sort({ publishedAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .select("-content")
+            .lean(),
+          Blog.countDocuments(query),
+          Blog.distinct("tags", { isPublished: true }),
+          Blog.distinct("category", { isPublished: true }),
+        ])
+
+        return {
+          blogs: JSON.parse(JSON.stringify(blogs)),
+          total,
+          totalPages: Math.ceil(total / limit),
+          page,
+          tags: allTags.sort(),
+          categories: allCategories.sort(),
+        }
+      } catch {
+        return { blogs: [], total: 0, totalPages: 0, page: 1, tags: [], categories: [] }
+      }
+    },
+    [`blog-list-${cacheKey}`],
+    { revalidate: 60, tags: ["blogs"] }
+  )()
 }
 
 export default async function BlogListPage({ searchParams }: BlogListPageProps) {
@@ -102,8 +113,8 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
               The <span className="text-muted-foreground/80 font-medium italic">Journal.</span>
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground leading-relaxed">
-              A curated collection of {total} articles covering academic strategy, 
-              productivity systems, and student lifestyle. Expertly crafted for the 
+              A curated collection of {total} articles covering academic strategy,
+              productivity systems, and student lifestyle. Expertly crafted for the
               next generation of high-achievers.
             </p>
           </div>
@@ -145,7 +156,7 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
                 url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://blog.studiva.co.in"}/blog`,
                 mainEntity: {
                   "@type": "ItemList",
-                  itemListElement: blogs.map((blog: any, i: number) => ({
+                  itemListElement: blogs.map((blog: IBlog, i: number) => ({
                     "@type": "ListItem",
                     position: i + 1,
                     url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://blog.studiva.co.in"}/blog/${blog.slug}`,
@@ -158,31 +169,19 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
           {/* Blog grid */}
           {blogs.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {blogs.map(
-                (blog: {
-                  _id: string
-                  title: string
-                  slug: string
-                  excerpt: string
-                  coverImage: string
-                  author: string
-                  tags: string[]
-                  category: string
-                  publishedAt: string
-                  readingTime: string
-                }) => (
-                  <BlogCard
-                    key={blog._id}
-                    title={blog.title}
-                    slug={blog.slug}
-                    excerpt={blog.excerpt}
-                    coverImage={blog.coverImage}
-                    author={blog.author}
-                    category={blog.category}
-                    publishedAt={blog.publishedAt}
-                    readingTime={blog.readingTime}
-                  />
-                )
+              {blogs.map((blog: IBlog) => (
+                <BlogCard
+                  key={blog._id.toString()}
+                  title={blog.title}
+                  slug={blog.slug}
+                  excerpt={blog.excerpt}
+                  coverImage={blog.coverImage}
+                  author={blog.author}
+                  category={blog.category}
+                  publishedAt={blog.publishedAt.toString()}
+                  readingTime={blog.readingTime}
+                />
+              )
               )}
             </div>
           ) : (

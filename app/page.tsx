@@ -8,6 +8,7 @@ import { generateWebsiteJsonLd } from "@/lib/seo"
 import { ArrowRight, Sparkles, TrendingUp, BookOpen, Zap } from "lucide-react"
 import type { Metadata } from "next"
 import Image from "next/image"
+import { SearchTriggerButton } from "@/components/ui/search-trigger"
 
 export const metadata: Metadata = {
   title: "Studiva™ Blog — Your Ultimate Guide to Student Success",
@@ -20,16 +21,28 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-async function getLatestBlogs() {
+import { unstable_cache } from "next/cache"
+import { IBlog } from "@/types/blog"
+
+const getLatestBlogs = async (): Promise<IBlog[]> => {
   try {
+    console.log("Fetching latest blogs from MongoDB...")
     await connectDB()
     const blogs = await Blog.find({ isPublished: true })
       .sort({ publishedAt: -1 })
       .limit(12)
       .select("-content")
       .lean()
+    
+    console.log(`Found ${blogs.length} published blogs.`)
+    if (blogs.length === 0) {
+      const totalCount = await Blog.countDocuments()
+      console.log(`Total blogs in DB (including drafts): ${totalCount}`)
+    }
+
     return JSON.parse(JSON.stringify(blogs))
-  } catch {
+  } catch (error) {
+    console.error("Error fetching latest blogs:", error)
     return []
   }
 }
@@ -57,56 +70,57 @@ export default async function HomePage() {
         tabIndex={-1}
       >
         {/* Hero Section */}
-        <section className="relative border-b border-border/5 bg-muted/10 pt-16 pb-16 md:pt-24 md:pb-24">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div className="text-left">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-foreground/5 px-3 py-1 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                  <Sparkles className="h-3 w-3" />
-                  Studiva™ Digital Publication
+        <section className="relative overflow-hidden py-24 lg:py-32">
+          {/* Animated Background Mesh */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-[40%] -left-[10%] h-[1000px] w-[1000px] rounded-full bg-primary/5 blur-[120px] animate-pulse" />
+            <div className="absolute -bottom-[40%] -right-[10%] h-[1000px] w-[1000px] rounded-full bg-primary/10 blur-[120px]" />
+          </div>
+
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+              <div className="max-w-2xl animate-in fade-in slide-in-from-left-8 duration-1000 ease-out">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  </span>
+                  Latest Insights
                 </div>
-                <h1 className="mb-8 font-heading text-5xl font-bold tracking-tight text-foreground sm:text-7xl md:text-8xl lg:text-[6rem] leading-[1.05]">
-                  The <span className="font-medium text-muted-foreground/80 italic">Future</span> of <br />
-                  Academic <span className="text-muted-foreground/60">Success.</span>
+                <h1 className="font-heading text-5xl font-bold tracking-tight text-foreground sm:text-7xl lg:text-8xl leading-[1.1]">
+                  Master Your <span className="text-primary">Academic</span> Journey
                 </h1>
-                <p className="mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                  Discover research-backed strategies for productivity, academic
-                  excellence, and student success. Built for the modern lifelong
-                  learner.
+                <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
+                  Your ultimate resource for study hacks, productivity tips, and expert academic insights.
                 </p>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="mt-10 flex flex-wrap gap-4">
                   <Link
                     href="/blog"
-                    className="inline-flex items-center gap-2 rounded-lg bg-foreground px-8 py-4 text-sm font-bold text-background transition-all hover:translate-y-[-2px] hover:bg-foreground/90 active:translate-y-0"
+                    className="inline-flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/30 active:scale-95"
                   >
-                    Start Reading
+                    Explore Articles
                   </Link>
-                  <Link
-                    href="/blog?category=Academic Success"
-                    className="inline-flex items-center gap-2 rounded-lg border border-border px-8 py-4 text-sm font-bold text-foreground transition-all hover:bg-muted"
-                  >
-                    Explore Guides
-                  </Link>
+                  <SearchTriggerButton
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-background px-8 text-sm font-bold text-foreground transition-all hover:bg-accent active:scale-95"
+                  />
                 </div>
               </div>
 
-              {/* Hero Image - More Focused "Slice" of the design */}
-              <div className="relative hidden lg:block">
-                <div className="relative z-10 overflow-hidden rounded-3xl border border-border/50 bg-muted/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] transition-all duration-700 hover:scale-[1.01]">
+              <div className="relative hidden lg:block animate-in fade-in zoom-in-95 duration-1000 delay-200">
+                <div className="relative aspect-square overflow-hidden rounded-3xl border border-border/10 bg-muted shadow-2xl">
                   <Image
-                    src="/og-default.png"
-                    alt="Studiva Publication Hero"
-                    width={1000}
-                    height={800}
-                    className="h-[500px] w-full object-cover object-top"
+                    src={blogs[0]?.coverImage || "/og-default.png"}
+                    alt="Featured Article"
+                    fill
+                    className="object-cover transition-transform duration-700 hover:scale-105"
                     priority
                   />
-                  {/* Subtle glass overlay */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-background/5 to-background/20" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 p-8">
+                    <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">Featured Today</p>
+                    <h3 className="text-2xl font-bold text-white line-clamp-2">{blogs[0]?.title}</h3>
+                  </div>
                 </div>
-                {/* Decorative glow */}
-                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-[100px]" />
-                <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-muted/20 blur-[100px]" />
               </div>
             </div>
           </div>
@@ -200,34 +214,6 @@ export default async function HomePage() {
                 </nav>
               </div>
 
-              {/* Newsletter */}
-              <div className="rounded-xl border border-border/50 bg-muted/50 p-6">
-                <div className="mb-4 flex h-8 items-center">
-                  <Image
-                    src="/studiva-logo-pink.svg"
-                    alt="Studiva Logo"
-                    width={140}
-                    height={44}
-                    className="h-8 w-auto object-contain rounded-[10%]"
-                  />
-                </div>
-                <h3 className="mb-3 font-heading text-lg font-bold">
-                  Subscribe
-                </h3>
-                <p className="mb-5 text-xs leading-relaxed text-muted-foreground">
-                  Weekly academic guides in your inbox.
-                </p>
-                <form className="space-y-2">
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    className="w-full rounded-lg border border-border bg-background px-4 py-2 text-xs focus:outline-none"
-                  />
-                  <button className="w-full rounded-lg bg-foreground px-4 py-2 text-xs font-bold text-background transition-colors">
-                    Join
-                  </button>
-                </form>
-              </div>
 
               {/* Trending Block - FIXED Runtime Error */}
               <div>
